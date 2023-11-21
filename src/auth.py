@@ -19,7 +19,6 @@ login_schema = LoginUserSchema()
 
 
 @auth.post('/register')
-@api.doc(body=registration_schema)
 def register():
     data = request.json
 
