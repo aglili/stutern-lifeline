@@ -6,12 +6,10 @@ from src.constants import status
 from werkzeug.security import generate_password_hash,check_password_hash
 from src.utils import get_country_from_ip,send_verification_email,generate_confirmation_token,confirm_token
 from flask_jwt_extended import create_access_token,jwt_required,get_jwt_identity,create_refresh_token
-from flask_restx import Api, Resource, fields
+
 
 
 auth = Blueprint('auth',__name__,url_prefix='/auth')
-
-api = Api(auth, doc='/doc/', version='1.0', title='Authentication API', description='API Documentation')
 
 
 
