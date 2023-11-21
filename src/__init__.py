@@ -4,6 +4,7 @@ from flask_jwt_extended import JWTManager
 from src.database.config import db
 from src.auth import auth
 from flask_migrate import Migrate
+from flask_cors import CORS
 load_dotenv()
 
 
@@ -23,6 +24,7 @@ def create_app(test_config=None):
     JWTManager(app)
     db.init_app(app)
     Migrate(app,db)
+    CORS(app,resources={r"/*": {"origins": "*"}})
     app.register_blueprint(auth)
 
     return app
