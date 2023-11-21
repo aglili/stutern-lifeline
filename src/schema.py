@@ -8,6 +8,9 @@ class RegisterUserSchema(Schema):
     email = fields.Email(required=True)
     password = fields.Str(required=True, validate=validate.Length(min=8))
     preferred_language = fields.Str(required=True, validate=validate.OneOf(['en', 'fr', 'es']))
+    country = fields.Str(required=False, validate=validate.Length(min=3))
+    allergy_description = fields.Str(required=False)
+    general_medical_condition = fields.Str(required=False)
 
     @validates('email')
     def validate_email(self, value):
