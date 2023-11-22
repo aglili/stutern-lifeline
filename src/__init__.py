@@ -5,6 +5,7 @@ from src.database.config import db
 from src.auth import auth
 from flask_migrate import Migrate
 from flask_cors import CORS
+from src.user import user
 load_dotenv()
 
 
@@ -26,6 +27,7 @@ def create_app(test_config=None):
     Migrate(app,db)
     CORS(app,resources={r"/*": {"origins": "*"}})
     app.register_blueprint(auth)
+    app.register_blueprint(user)
 
     return app
 

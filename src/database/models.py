@@ -32,7 +32,6 @@ class MedicalHistory(db.Model):
     allergy_description = db.Column(db.String, nullable=True)
     general_medical_condition = db.Column(db.String, nullable=True)
     blood_type = db.Column(db.String, nullable=True)
-    sickle_cell_status = db.Column(db.String, nullable=True)
     genotype = db.Column(db.String, nullable=True)
     height = db.Column(db.String, nullable=True)
     weight = db.Column(db.String, nullable=True)
