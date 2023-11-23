@@ -33,4 +33,21 @@ class LoginUserSchema(Schema):
 class UpdateUserSchema(Schema):
     pass
 
+
+
+class UpdateMedicalHistorySchema(Schema):
+    allergy_description = fields.Str(required=False)
+    general_medical_condition = fields.Str(required=False)
+    blood_type = fields.Str(required=False)
+    genotype = fields.Str(required=False)
+    height = fields.Str(required=False)
+    weight = fields.Str(required=False)
+    blood_pressure = fields.Str(required=False)
+    user_id = fields.Str(required=True)
+
+    @validates('user_id')
+    def validate_user_id(self, value):
+        if not User.query.filter_by(id=value).first():
+            raise ValidationError('User does not exist')
+        return value
     

@@ -32,7 +32,6 @@ class MedicalHistory(db.Model):
     allergy_description = db.Column(db.String, nullable=True)
     general_medical_condition = db.Column(db.String, nullable=True)
     blood_type = db.Column(db.String, nullable=True)
-    sickle_cell_status = db.Column(db.String, nullable=True)
     genotype = db.Column(db.String, nullable=True)
     height = db.Column(db.String, nullable=True)
     weight = db.Column(db.String, nullable=True)
@@ -46,3 +45,38 @@ class MedicalHistory(db.Model):
 
     def __str__(self) -> str:
         return f"{self.id}"
+    
+
+class ConversationInteraction(db.Model):
+    id = db.Column(db.String, primary_key=True)
+    conversation_id = db.Column(db.String, db.ForeignKey('conversation.id'))
+    user_id = db.Column(db.String, db.ForeignKey('user.id'))
+    message = db.Column(db.Text,nullable=False)
+    is_user = db.Column(db.Boolean) # is_user = True means the message was sent by the user, is_user = False means the message was sent by the bot
+    title = db.Column(db.String, nullable=True) 
+    timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+
+    def __init__(self, *args, **kwargs):
+        super(ConversationInteraction, self).__init__(*args, **kwargs)
+        self.id = f"conversation_interaction_{generate_id()}"
+
+    def __str__(self) -> str:
+        return f"{self.id}"
+
+class Conversation(db.Model):
+    id = db.Column(db.String, primary_key=True)
+    user_id = db.Column(db.String, db.ForeignKey('user.id'))
+    interactions = db.relationship('ConversationInteraction', backref='conversation', lazy='dynamic')
+    timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+
+
+    def __init__(self, *args, **kwargs):
+        super(Conversation, self).__init__(*args, **kwargs)
+        self.id = f"conversation_{generate_id()}"
+
+    def __str__(self) -> str:
+        return f"{self.id}"
+    
+
+
+

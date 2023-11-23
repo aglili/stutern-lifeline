@@ -185,6 +185,45 @@ def verify_user(token):
                 "message":"Invalid token/Token expired, Try again"
             }
         ),status.HTTP_400_BAD_REQUEST
+    
+
+
+@auth.post('/resend-verification')
+def resend_verification_link():
+
+    data = request.json
+
+    email = data.get('email',None)
+
+    if not email:
+        return jsonify(
+            {
+                "status":"Failed",
+                "message":"Email is required"
+            }
+        ),status.HTTP_400_BAD_REQUEST
+    
+    user = User.query.filter_by(email=email).first()
+
+    if user:
+        token = generate_confirmation_token(user.id)
+        verification_link = f"{request.url_root}auth/verify/{token}"
+        send_verification_email(email=user.email,verification_link=verification_link,full_name=user.full_name)
+
+        return jsonify(
+            {
+                "status":"Success",
+                "message":"Verification link sent successfully"
+            }
+        ),status.HTTP_200_OK
+    
+    else:
+        return jsonify({
+            "status": "Failed",
+            "message": "User with this email does not exist"
+        }), status.HTTP_404_NOT_FOUND
+
+
         
         
 
