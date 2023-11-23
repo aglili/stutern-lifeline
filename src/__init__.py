@@ -6,6 +6,7 @@ from src.auth import auth
 from flask_migrate import Migrate
 from flask_cors import CORS
 from src.user import user
+from src.chat import chat
 load_dotenv()
 
 
@@ -28,6 +29,7 @@ def create_app(test_config=None):
     CORS(app,resources={r"/*": {"origins": "*"}})
     app.register_blueprint(auth)
     app.register_blueprint(user)
+    app.register_blueprint(chat)
 
     return app
 
