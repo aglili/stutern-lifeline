@@ -1,4 +1,4 @@
-from flask import Blueprint,jsonify,request
+from flask import Blueprint,jsonify,request,redirect
 from src.database.models import User,MedicalHistory
 from src.schema import RegisterUserSchema,LoginUserSchema,UpdateUserSchema
 from src.database.config import db
@@ -172,12 +172,7 @@ def verify_user(token):
         user = User.query.get(user_id)
         user.is_verified = True
         db.session.commit()
-        return jsonify(
-            {
-                "status":"Success",
-                "message":"User verified successfully"
-            }
-        ),status.HTTP_200_OK
+        return redirect(location="https://lifelineai.vercel.app/login")
     else:
         return jsonify(
             {
