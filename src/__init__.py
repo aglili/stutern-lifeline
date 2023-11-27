@@ -7,6 +7,7 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 from src.user import user
 from src.chat import chat
+from src.reminder import reminder
 load_dotenv()
 
 
@@ -30,6 +31,7 @@ def create_app(test_config=None):
     app.register_blueprint(auth)
     app.register_blueprint(user)
     app.register_blueprint(chat)
+    app.register_blueprint(reminder)
 
     return app
 

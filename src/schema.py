@@ -1,5 +1,6 @@
 from marshmallow import Schema, fields,validates,ValidationError,validate
 from src.database.models import User
+import datetime
 
 
 
@@ -51,3 +52,20 @@ class UpdateMedicalHistorySchema(Schema):
             raise ValidationError('User does not exist')
         return value
     
+
+
+class ReminderSchema(Schema):
+    id = fields.Str(dump_only=True)
+    user_id = fields.Str(required=True)
+    title = fields.Str(required=True)
+    description = fields.Str(required=True)
+    time = fields.DateTime(required=True)
+    created_at = fields.DateTime(dump_only=True)
+    updated_at = fields.DateTime(dump_only=True)
+    is_completed = fields.Boolean()
+
+    @validates('time')
+    def validate_time(self, value):
+        if value < datetime.datetime.utcnow():
+            raise ValidationError('Time cannot be in the past')
+        return value
