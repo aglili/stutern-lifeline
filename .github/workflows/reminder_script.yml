@@ -1,0 +1,25 @@
+name: Reminder Job
+
+on:
+  schedule:
+    - cron: '* * * * *'
+
+jobs:
+  reminder:
+    runs-on: ubuntu-latest  
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.6'  
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt  # Install your project dependencies
+
+      - name: Run reminder script
+        run: python src/services/sched.py

@@ -49,3 +49,21 @@ def confirm_token(token,expiration=3600):
         return user_id
     except Exception as e:
         return None
+    
+
+
+def send_reminder_email(email:str, reminder_title:str,reminder_description:str):
+    """Send reminder email to user."""
+
+    client.send_message(
+  message={
+    "to": {
+      "email": email,
+    },
+    "template": "KXD3H695DR4J4EKQGRTBHDZMYMA3",
+    "data": {
+      "title": reminder_title,
+      "description": reminder_description,
+    },
+  }
+    )

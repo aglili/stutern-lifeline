@@ -41,10 +41,6 @@ def send_message():
     data = request.json
     user_id = get_jwt_identity()
 
-
-
-
-    # Fetch the conversation
     conversation = Conversation.query.get(data['conversation_id'])
 
     if not conversation:
@@ -53,7 +49,6 @@ def send_message():
             "message": "Conversation does not exist"
         }), 404
 
-    # Add user's message to the conversation
     user_message = data['message']
     conversation_interaction_user = ConversationInteraction(
         conversation_id=conversation.id,
@@ -64,10 +59,11 @@ def send_message():
     )
     conversation.interactions.append(conversation_interaction_user)
 
-    # Fetch conversation history for context
-    conversation_history = ConversationInteraction.query.filter_by(conversation_id=conversation.id).order_by(ConversationInteraction.timestamp.desc()).all()
+    # Fetch the last two conversation histories for context
+    conversation_history = ConversationInteraction.query.filter_by(conversation_id=conversation.id).order_by(
+        ConversationInteraction.timestamp.desc()).limit(2).all()
 
-    # Construct context for the bot using conversation history
+    # Construct context for the bot using the last two conversations
     context_messages = []
     for interaction in conversation_history:
         if interaction.is_user:
@@ -77,68 +73,36 @@ def send_message():
 
     context_for_bot = "\n".join(context_messages)
 
-
-    print(context_for_bot)
-
-    # Construct prompt for the AI with conversation history as context
-    formatted_prompt = f"{context_for_bot}\n" 
-
-    # Fetch user information
-    user = User.query.get(user_id)
-    medical_history = MedicalHistory.query.filter_by(user_id=user_id).first()
-
-    user_info_string = f"""
-    user's name is {user.full_name}
-    user's country is {user.country}
-    user's preferred language is {user.preferred_language}
-    user's allergies are {medical_history.allergy_description}
-    user's blood type is {medical_history.blood_type}
-    user's genotype is {medical_history.genotype}
-    user's height is {medical_history.height}
-    user's weight is {medical_history.weight}
-    user's blood pressure is {medical_history.blood_pressure}
-    user's medical condition is {medical_history.general_medical_condition}
-    """
-
-    formatted_prompt += f"""
+    formatted_prompt = f"""{context_for_bot}\n
     Your Name is Stutern Lifeline AI. You Help With Providing Symptom Diagnosis.
-    User's name is {user.full_name}
-    User's country is {user.country}
-    User's preferred language is {user.preferred_language}
-    User's allergies are {medical_history.allergy_description}
-    User's blood type is {medical_history.blood_type}
-    User's genotype is {medical_history.genotype}
-    User's height is {medical_history.height}
-    User's weight is {medical_history.weight}
-    User's blood pressure is {medical_history.blood_pressure}
-    User's medical condition is {medical_history.general_medical_condition}
-
-    If the preferred language is English, you ask the questions in English.
-    If the preferred language is French, you ask the questions in French.
-    If the preferred language is Spanish, you ask the questions in Spanish.
     When the questions asked are not enough, you ask the user to provide more information.
     When the questions asked are not in your scope, you deny having an answer to the question.
     You categorize the diagnosis into 3 categories: mild, moderate, and severe.
     If the diagnosis is mild, you ask the user to take some drugs or give drug recommendations.
     If severe, you give the diagnosis and also provide the user with emergency numbers to call based on their country.
-
+    After asking the user for questions you and youre ready to provide diagnosis,you first state the category of the diagnosis.
+    You then provide the diagnosis and also provide the user with emergency numbers to call based on their country.
     So, your response should be based on the information provided.
-
     """
 
-    # Get AI response
+    # AI model parameters
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[{"role": "system", "content": formatted_prompt}],
-        max_tokens=500,
-        temperature=0.9,
+        max_tokens=200,
+        temperature=0.7,
         stop=["\n"]
     )
 
-    # Extract bot's response from AI completion
+    if not response or not response.choices or not response.choices[0].message:
+        # Handle cases where AI fails to respond appropriately
+        return jsonify({
+            "status": "error",
+            "message": "AI response error"
+        }), 500
+
     bot_response = response.choices[0].message.content
 
-    # Add bot's response to the conversation
     conversation_interaction_bot = ConversationInteraction(
         conversation_id=conversation.id,
         user_id=user_id,
@@ -148,7 +112,6 @@ def send_message():
     )
     conversation.interactions.append(conversation_interaction_bot)
 
-    # Save to the database
     db.session.add_all([conversation_interaction_user, conversation_interaction_bot])
     db.session.commit()
 
@@ -192,4 +155,5 @@ def get_chat_history(conversation_id):
         chat_history_json["messages"].append(message_entry)
 
     return jsonify(chat_history_json), 200
+
 

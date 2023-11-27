@@ -79,4 +79,23 @@ class Conversation(db.Model):
     
 
 
+class Reminder(db.Model):
+    id = db.Column(db.String, primary_key=True)
+    user_id = db.Column(db.String, db.ForeignKey('user.id'))
+    title = db.Column(db.String, nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    time = db.Column(db.DateTime, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    updated_at = db.Column(db.DateTime, onupdate=datetime.datetime.utcnow)
+    is_completed = db.Column(db.Boolean, default=False)
+
+    def __init__(self, *args, **kwargs):
+        super(Reminder, self).__init__(*args, **kwargs)
+        self.id = f"reminder_{generate_id()}"
+
+    def __str__(self) -> str:
+        return f"{self.id}"
+    
+
+
 
